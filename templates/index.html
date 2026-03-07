@@ -83,17 +83,13 @@
                 <!-- Closest Station Card Overlay (hidden by default) -->
                 <div id="closestStationCard" class="overlay-card hidden">
                     <div class="overlay-content">
-                        <!-- We will inject an img tag or fallback class via JS -->
                         <div id="overlayImgContainer" class="overlay-img"></div>
                         <div class="overlay-info">
                             <span class="badge-closest">SELECTED STATION</span>
                             <h3 id="closestName">Station Name</h3>
-                            <div id="closestDesc" style="font-size: 0.8rem; color: #6b7280; margin-bottom: 6px;"></div>
-                            <div id="closestTime"
-                                style="font-size: 0.8rem; font-weight: 500; margin-bottom: 8px; color: #10b981;"></div>
-                            <div class="overlay-prices">
-                                <!-- Price info or fuel types will go here -->
-                            </div>
+                            <div id="closestDesc" class="overlay-description"></div>
+                            <div id="closestTime" class="overlay-time"></div>
+                            <div class="overlay-prices"></div>
                         </div>
                     </div>
                 </div>

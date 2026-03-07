@@ -21,23 +21,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let userMarker = null;
 
     // Custom Icon for Stations
-    const stationIconHtml = `
-        <div class="custom-marker">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M19 10h-2V4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2zM5 4h10v6H5V4zm10 16H5v-8h10v8zm4-4h-2v-4h2v4z"/>
-                <circle cx="10" cy="15" r="2"/>
-            </svg>
-        </div>`;
+    const stationIconHtml = `<div class="custom-marker"></div>`;
 
     const stationIcon = L.divIcon({
         html: stationIconHtml,
         className: '',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
     });
 
     let currentMarkers = [];
     let currentStations = [];
+    let favoriteStations = JSON.parse(localStorage.getItem('favoriteStations') || '[]');
 
     // 2. Fetch DOM elements
     const searchInput = document.getElementById('searchInput');
@@ -90,6 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let filteredStations = currentStations;
         if (activePillFilter === 'open') {
             filteredStations = filteredStations.filter(s => s.is_open_now);
+        } else if (activePillFilter === 'favorites') {
+            filteredStations = filteredStations.filter(s => favoriteStations.includes(s.id));
         }
 
         stationCount.textContent = `${filteredStations.length} STATIONS FOUND`;
@@ -117,6 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 badgesHtml += `<span class="badge green">OPEN</span>`;
             }
 
+            const isFavorite = favoriteStations.includes(station.id);
+
             card.innerHTML = `
                 <div class="card-header">
                     <h3 class="card-title">${station.name}</h3>
@@ -135,21 +134,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${badgesHtml}
                 </div>
                 <div class="card-actions">
-                    <button class="btn-navigate" onclick="navigateMap(${station.lat}, ${station.lng})">
+                    <button class="btn-navigate" data-lat="${station.lat}" data-lng="${station.lng}">
                         <span>➤</span> Navigate
                     </button>
-                    <button class="btn-icon">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <button class="btn-icon btn-favorite ${isFavorite ? 'active' : ''}" data-station-id="${station.id}">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="${isFavorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
                     </button>
                 </div>
             `;
 
-            card.addEventListener('click', () => {
-                map.flyTo([station.lat, station.lng], 15);
-                showClosestCard(station);
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.btn-navigate') && !e.target.closest('.btn-favorite')) {
+                    map.flyTo([station.lat, station.lng], 15);
+                    showClosestCard(station);
+                }
             });
+
+            const navigateBtn = card.querySelector('.btn-navigate');
+            navigateBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const lat = parseFloat(e.currentTarget.dataset.lat);
+                const lng = parseFloat(e.currentTarget.dataset.lng);
+
+                if (!userMarker) {
+                    alert("Please click 'Locate Me' first to get your starting position.");
+                    return;
+                }
+
+                const startLat = userMarker.getLatLng().lat;
+                const startLng = userMarker.getLatLng().lng;
+                buildRoute(startLat, startLng, lat, lng);
+            });
+
+            const favoriteBtn = card.querySelector('.btn-favorite');
+            favoriteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleFavorite(station.id, favoriteBtn);
+            });
+
             stationList.appendChild(card);
 
             // B. Add to Map
@@ -182,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         closestCard.classList.remove('hidden');
         closestName.textContent = station.name;
 
-        // Update Description and Time
+        // Update Description
         if (station.description) {
             closestDesc.textContent = station.description;
             closestDesc.style.display = 'block';
@@ -190,9 +214,16 @@ document.addEventListener('DOMContentLoaded', () => {
             closestDesc.style.display = 'none';
         }
 
+        // Update Time with icon
         if (station.open_time) {
-            closestTime.textContent = '🕒 ' + station.open_time;
-            closestTime.style.display = 'block';
+            closestTime.innerHTML = `
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                ${station.open_time}
+            `;
+            closestTime.style.display = 'flex';
         } else {
             closestTime.style.display = 'none';
         }
@@ -201,18 +232,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (station.image_url) {
             closestImgContainer.style.backgroundImage = `url('${station.image_url}')`;
         } else {
-            // Restore default placeholder
             closestImgContainer.style.backgroundImage = `url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3e%3cpath d="M3 2v6h18V2H3zm13 14h-8v6h8v-6zm-7-2v2h6v-2h-6z"%3e%3c/path%3e%3c/svg%3e')`;
         }
 
-        // fake pricing based on fuel types for demo
+        // Enhanced pricing based on fuel types
         let pricesHtml = '';
-        if (station.fuel_types.includes('PETROL AI-92')) {
-            pricesHtml += `<div class="price-item"><span class="price-label">PETROL 92</span><span class="price-val">9,800 UZS</span></div>`;
-        }
-        if (station.fuel_types.includes('CNG')) {
-            pricesHtml += `<div class="price-item"><span class="price-label">CNG</span><span class="price-val">2,800 UZS</span></div>`;
-        }
+        const fuelPrices = {
+            'PETROL AI-80': '8,500 UZS',
+            'PETROL AI-92': '9,800 UZS',
+            'PETROL AI-95': '10,500 UZS',
+            'PETROL AI-98': '11,200 UZS',
+            'DIESEL': '9,200 UZS',
+            'CNG': '2,800 UZS',
+            'LPG': '3,500 UZS'
+        };
+
+        station.fuel_types.slice(0, 3).forEach(fuelType => {
+            const price = fuelPrices[fuelType] || 'Available';
+            pricesHtml += `<div class="price-item"><span class="price-label">${fuelType}</span><span class="price-val">${price}</span></div>`;
+        });
+
         if (!pricesHtml && station.fuel_types.length > 0) {
             pricesHtml += `<div class="price-item"><span class="price-label">${station.fuel_types[0]}</span><span class="price-val">Available</span></div>`;
         }
@@ -261,7 +300,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         const distB = Math.pow(b.lat - lat, 2) + Math.pow(b.lng - lng, 2);
                         return distA - distB;
                     });
-                    showClosestCard(sorted[0]);
+                    const nearest = sorted[0];
+                    showClosestCard(nearest);
+
+                    // Auto-build route to nearest station
+                    buildRoute(lat, lng, nearest.lat, nearest.lng);
                 }
             }, err => {
                 alert("Could not access your location.");
@@ -269,19 +312,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Make available globally for inline onclick
-    window.navigateMap = (destLat, destLng) => {
-        // Stop bubbling
-        if (window.event) window.event.stopPropagation();
-
-        if (!userMarker) {
-            alert("Please click 'Locate Me' first to get your starting position.");
-            return;
-        }
-
-        const startLat = userMarker.getLatLng().lat;
-        const startLng = userMarker.getLatLng().lng;
-
+    // Build route helper function
+    const buildRoute = (startLat, startLng, destLat, destLng) => {
         // Clear existing route if any
         if (routingControl) {
             map.removeControl(routingControl);
@@ -299,8 +331,23 @@ document.addEventListener('DOMContentLoaded', () => {
             lineOptions: {
                 styles: [{ color: '#00d936', opacity: 0.8, weight: 6 }]
             },
-            createMarker: function () { return null; } // Don't create default A/B markers
+            createMarker: function () { return null; }
         }).addTo(map);
+    };
+
+    // Toggle favorite
+    const toggleFavorite = (stationId, btn) => {
+        const index = favoriteStations.indexOf(stationId);
+        if (index > -1) {
+            favoriteStations.splice(index, 1);
+            btn.classList.remove('active');
+            btn.querySelector('svg').setAttribute('fill', 'none');
+        } else {
+            favoriteStations.push(stationId);
+            btn.classList.add('active');
+            btn.querySelector('svg').setAttribute('fill', 'currentColor');
+        }
+        localStorage.setItem('favoriteStations', JSON.stringify(favoriteStations));
     };
 
     // Util
