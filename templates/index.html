@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UzGasFind - Find Gas Stations in Uzbekistan</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Top Navigation -->
+        <header class="topbar">
+            <div class="logo">
+                <span class="logo-icon">⛽</span>
+                <h1>UzGasFind</h1>
+            </div>
+
+            <div class="search-filters">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search city or region in Uzbekistan...">
+                </div>
+
+                <select id="regionFilter" class="filter-dropdown">
+                    <option value="">Region</option>
+                    {% for region in regions %}
+                    <option value="{{ region }}">{{ region }}</option>
+                    {% endfor %}
+                </select>
+
+                <select id="fuelFilter" class="filter-dropdown">
+                    <option value="">Fuel Type</option>
+                    <option value="PETROL AI-80">AI-80</option>
+                    <option value="PETROL AI-92">AI-92</option>
+                    <option value="PETROL AI-95">AI-95</option>
+                    <option value="PETROL AI-98">AI-98</option>
+                    <option value="DIESEL">Diesel</option>
+                    <option value="CNG">CNG</option>
+                    <option value="LPG">LPG</option>
+                </select>
+            </div>
+
+            <div class="top-actions">
+                <button id="locateMeBtn" class="btn-primary">
+                    <span class="icon">⌖</span> Locate Me
+                </button>
+                <div class="user-profile"></div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Nearby Stations</h2>
+                    <span id="stationCount" class="station-count">0 STATIONS FOUND</span>
+                </div>
+
+                <div class="filter-pills">
+                    <button class="pill active" data-filter="all">All</button>
+                    <button class="pill" data-filter="open">Open Now</button>
+                    <button class="pill" data-filter="favorites">Favorites</button>
+                </div>
+
+                <div id="stationList" class="station-list">
+                    <!-- Cards will be dynamically injected here -->
+                    <div class="loading-state">Loading stations...</div>
+                </div>
+            </aside>
+
+            <!-- Map Area -->
+            <div class="map-container">
+                <div id="map"></div>
+                <!-- Closest Station Card Overlay (hidden by default) -->
+                <div id="closestStationCard" class="overlay-card hidden">
+                    <div class="overlay-content">
+                        <!-- We will inject an img tag or fallback class via JS -->
+                        <div id="overlayImgContainer" class="overlay-img"></div>
+                        <div class="overlay-info">
+                            <span class="badge-closest">SELECTED STATION</span>
+                            <h3 id="closestName">Station Name</h3>
+                            <div id="closestDesc" style="font-size: 0.8rem; color: #6b7280; margin-bottom: 6px;"></div>
+                            <div id="closestTime"
+                                style="font-size: 0.8rem; font-weight: 500; margin-bottom: 8px; color: #10b981;"></div>
+                            <div class="overlay-prices">
+                                <!-- Price info or fuel types will go here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/map.js' %}"></script>
+</body>
+
+</html>
