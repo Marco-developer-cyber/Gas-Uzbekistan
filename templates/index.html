@@ -10,8 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=20260309f">
 </head>
 
 <body>
@@ -19,13 +21,25 @@
         <!-- Top Navigation -->
         <header class="topbar">
             <div class="logo">
-                <span class="logo-icon">⛽</span>
+                <span class="logo-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M7 3h8a2 2 0 0 1 2 2v14H5V5a2 2 0 0 1 2-2z"></path>
+                        <path d="M9 7h6"></path>
+                        <path d="M9 10h6"></path>
+                        <path d="M17 8h2l2 2v7a2 2 0 0 1-2 2h-2"></path>
+                    </svg>
+                </span>
                 <h1>UzGasFind</h1>
             </div>
 
             <div class="search-filters">
                 <div class="search-box">
-                    <span class="search-icon">🔍</span>
+                    <span class="search-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <path d="M20 20l-3.5-3.5"></path>
+                        </svg>
+                    </span>
                     <input type="text" id="searchInput" placeholder="Search city or region in Uzbekistan...">
                 </div>
 
@@ -50,7 +64,16 @@
 
             <div class="top-actions">
                 <button id="locateMeBtn" class="btn-primary">
-                    <span class="icon">⌖</span> Locate Me
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 3v3"></path>
+                            <path d="M12 18v3"></path>
+                            <path d="M3 12h3"></path>
+                            <path d="M18 12h3"></path>
+                            <circle cx="12" cy="12" r="4"></circle>
+                        </svg>
+                    </span>
+                    Find Nearby
                 </button>
                 <div class="user-profile"></div>
             </div>
@@ -82,6 +105,12 @@
                 <div id="map"></div>
                 <!-- Closest Station Card Overlay (hidden by default) -->
                 <div id="closestStationCard" class="overlay-card hidden">
+                    <button id="closeOverlayBtn" class="overlay-close-btn" type="button" aria-label="Close details">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6 6l12 12"></path>
+                            <path d="M18 6l-12 12"></path>
+                        </svg>
+                    </button>
                     <div class="overlay-content">
                         <div id="overlayImgContainer" class="overlay-img"></div>
                         <div class="overlay-info">
@@ -93,14 +122,42 @@
                         </div>
                     </div>
                 </div>
+                <button id="openOverlayBtn" class="overlay-open-btn" type="button" hidden>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 10v6"></path>
+                        <path d="M12 7h.01"></path>
+                    </svg>
+                    Details
+                </button>
             </div>
         </main>
+
+        <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+            <button id="mobileMapBtn" class="mobile-nav-btn active" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"></path>
+                    <path d="M9 4v14"></path>
+                    <path d="M15 6v14"></path>
+                </svg>
+                <span>Map</span>
+            </button>
+            <button id="mobileSearchBtn" class="mobile-nav-btn" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="M20 20l-3.5-3.5"></path>
+                </svg>
+                <span>Search</span>
+            </button>
+        </nav>
     </div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     <!-- Custom JS -->
-    <script src="{% static 'js/map.js' %}"></script>
+    <script src="{% static 'js/map.js' %}?v=20260309f"></script>
 </body>
 
 </html>
