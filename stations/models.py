@@ -12,8 +12,8 @@ class Station(models.Model):
     address = models.CharField(max_length=500)
     city = models.CharField(max_length=100)
     region = models.CharField(max_length=100)
-    latitude = models.FloatField(verbose_name="Latitude (Y)")
     longitude = models.FloatField(verbose_name="Longitude (X)")
+    latitude = models.FloatField(verbose_name="Latitude (Y)")
     
     description = models.TextField(blank=True, null=True)
     open_time = models.CharField(max_length=100, blank=True, null=True, help_text="e.g. 08:00 - 22:00 or 24/7")
