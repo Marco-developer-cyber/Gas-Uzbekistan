@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    let routingControl = null;
     let userMarker = null;
     let currentMarkers = [];
     let currentStations = [];
@@ -78,14 +77,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const hideRoutingUi = () => {
-        const routingPanels = document.querySelectorAll(
-            '.leaflet-routing-container, .leaflet-routing-alt, .leaflet-routing-geocoders'
-        );
-        routingPanels.forEach(panel => {
-            panel.style.display = 'none';
-            panel.style.visibility = 'hidden';
+    const openGoogleMapsRoute = (destLat, destLng, startLat = null, startLng = null) => {
+        const params = new URLSearchParams({
+            api: '1',
+            destination: `${destLat},${destLng}`,
+            travelmode: 'driving'
         });
+        if (startLat !== null && startLng !== null) {
+            params.set('origin', `${startLat},${startLng}`);
+        }
+        window.open(`https://www.google.com/maps/dir/?${params.toString()}`, '_blank', 'noopener');
     };
 
     const setUserMarker = (lat, lng) => {
@@ -138,36 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching stations:', err);
             stationList.innerHTML = '<div class="loading-state">Error loading stations.</div>';
         }
-    };
-
-    const buildRoute = (startLat, startLng, destLat, destLng) => {
-        if (!L.Routing || !L.Routing.control) {
-            alert('Route engine is not loaded. Please reload the page.');
-            return;
-        }
-
-        if (routingControl) {
-            map.removeControl(routingControl);
-        }
-
-        routingControl = L.Routing.control({
-            waypoints: [
-                L.latLng(startLat, startLng),
-                L.latLng(destLat, destLng)
-            ],
-            show: false,
-            addWaypoints: false,
-            draggableWaypoints: false,
-            routeWhileDragging: false,
-            showAlternatives: false,
-            fitSelectedRoutes: true,
-            lineOptions: {
-                styles: [{ color: '#00d936', opacity: 0.8, weight: 6 }]
-            },
-            createMarker: () => null
-        }).addTo(map);
-
-        hideRoutingUi();
     };
 
     const showClosestCard = (station) => {
@@ -331,9 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const { lat: startLat, lng: startLng } = await getUserLocation();
                     map.flyTo([lat, lng], 15);
                     showClosestCard(station);
-                    buildRoute(startLat, startLng, lat, lng);
+                    openGoogleMapsRoute(lat, lng, startLat, startLng);
                 } catch (err) {
-                    alert('Please allow location access to build a route.');
+                    openGoogleMapsRoute(lat, lng);
                 }
             });
 
@@ -391,7 +362,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 const nearest = sorted[0];
                 showClosestCard(nearest);
-                buildRoute(lat, lng, nearest.lat, nearest.lng);
             }
         } catch (err) {
             alert('Could not access your location.');
