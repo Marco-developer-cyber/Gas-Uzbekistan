@@ -26,3 +26,9 @@ class StationAdmin(admin.ModelAdmin):
         'is_open_now',
         'fuels',
     )
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['longitude'].label = 'Longitude (Y)'
+        form.base_fields['latitude'].label = 'Latitude (X)'
+        return form
