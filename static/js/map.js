@@ -1,7 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const TASHKENT_BOUNDS = L.latLngBounds(
+        [41.195, 69.120], // south-west
+        [41.390, 69.420]  // north-east
+    );
+
     const map = L.map('map', {
         zoomControl: false
-    }).setView([41.2995, 69.2401], 12);
+    }).setView([41.2995, 69.2401], 13);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -56,6 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const openOverlayBtn = document.getElementById('openOverlayBtn');
 
     const pills = document.querySelectorAll('.pill');
+
+    const focusTashkent = () => {
+        map.invalidateSize();
+        map.fitBounds(TASHKENT_BOUNDS, {
+            padding: [0, 0],
+            animate: false
+        });
+    };
 
     const setMobileView = view => {
         if (window.innerWidth > 900) {
@@ -229,8 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const bounds = L.latLngBounds();
-
         filteredStations.forEach((station, index) => {
             const card = document.createElement('div');
             card.className = 'station-card';
@@ -327,12 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             currentMarkers.push(marker);
-            bounds.extend([station.lat, station.lng]);
         });
-
-        if (currentMarkers.length > 0 && map.getZoom() < 14) {
-            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
-        }
     };
 
     searchInput.addEventListener('input', debounce(fetchStations, 300));
@@ -410,6 +416,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    focusTashkent();
     fetchStations();
     setMobileView('map');
+    setTimeout(focusTashkent, 200);
 });
