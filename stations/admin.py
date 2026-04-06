@@ -16,7 +16,8 @@ class StationAdminForm(forms.ModelForm):
     image_url = forms.URLField(
         required=False,
         label="Image URL (Internet)",
-        help_text="Можно вставить прямую ссылку на картинку (http/https).",
+        help_text="Paste a direct image URL (http/https), e.g. https://site.com/photo.jpg",
+        widget=forms.URLInput(attrs={"placeholder": "https://example.com/photo.jpg"}),
     )
 
     class Meta:
@@ -30,41 +31,55 @@ class StationAdminForm(forms.ModelForm):
 
         parsed = urlparse(value)
         if parsed.scheme not in {"http", "https"}:
-            raise forms.ValidationError("Используйте ссылку, которая начинается с http:// или https://")
+            raise forms.ValidationError("Use a URL that starts with http:// or https://")
         return value
+
 
 @admin.register(FuelType)
 class FuelTypeAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
+    list_display = ("name",)
+    search_fields = ("name",)
+
 
 @admin.register(Station)
 class StationAdmin(admin.ModelAdmin):
     form = StationAdminForm
-    list_display = ('name', 'region', 'city', 'rating', 'is_open_now')
-    list_filter = ('region', 'city', 'is_open_now', 'fuels')
-    search_fields = ('name', 'address', 'region', 'city')
-    filter_horizontal = ('fuels',)  # Multi-select widget with arrows
-    fields = (
-        'name',
-        'rating',
-        'address',
-        'city',
-        'region',
-        'longitude',
-        'latitude',
-        'description',
-        'open_time',
-        'image',
-        'image_url',
-        'is_open_now',
-        'fuels',
+    list_display = ("name", "region", "city", "rating", "is_open_now")
+    list_filter = ("region", "city", "is_open_now", "fuels")
+    search_fields = ("name", "address", "region", "city")
+    filter_horizontal = ("fuels",)
+    fieldsets = (
+        (
+            "Main",
+            {
+                "fields": (
+                    "name",
+                    "rating",
+                    "address",
+                    "city",
+                    "region",
+                    "longitude",
+                    "latitude",
+                    "description",
+                    "open_time",
+                    "is_open_now",
+                    "fuels",
+                )
+            },
+        ),
+        (
+            "Photo Source",
+            {
+                "description": "Choose one option: upload from PC or paste an Internet URL.",
+                "fields": ("image", "image_url"),
+            },
+        ),
     )
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        form.base_fields['longitude'].label = 'Longitude (Y)'
-        form.base_fields['latitude'].label = 'Latitude (X)'
+        form.base_fields["longitude"].label = "Longitude (Y)"
+        form.base_fields["latitude"].label = "Latitude (X)"
         return form
 
     @staticmethod
@@ -87,9 +102,9 @@ class StationAdmin(admin.ModelAdmin):
 
         content_type = (response.headers.get("Content-Type") or "").lower()
         if content_type and not content_type.startswith("image/"):
-            raise ValueError("ссылка не ведет на изображение")
+            raise ValueError("URL does not point to an image")
         if not response.content:
-            raise ValueError("изображение пустое")
+            raise ValueError("Image is empty")
 
         filename = self._build_filename(image_url, content_type)
         return ContentFile(response.content), filename
@@ -104,10 +119,10 @@ class StationAdmin(admin.ModelAdmin):
         try:
             content, filename = self._download_image(image_url)
             obj.image.save(filename, content, save=True)
-            self.message_user(request, "Изображение по ссылке успешно загружено.", level=messages.SUCCESS)
+            self.message_user(request, "Image from URL was uploaded successfully.", level=messages.SUCCESS)
         except Exception as exc:
             self.message_user(
                 request,
-                f"Не удалось загрузить изображение по ссылке: {exc}",
+                f"Could not download image from URL: {exc}",
                 level=messages.ERROR,
             )
