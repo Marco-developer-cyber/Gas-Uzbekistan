@@ -560,6 +560,35 @@ body {
     gap: 6px;
 }
 
+.overlay-amenities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.amenity-pill {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    background: #f8fafc;
+}
+
+.amenity-pill.on {
+    color: #065f46;
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+
+.amenity-pill.off {
+    color: #7f1d1d;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
 .overlay-prices {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

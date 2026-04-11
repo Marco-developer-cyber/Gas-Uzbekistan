@@ -2,7 +2,11 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Station, FuelType
 
-def index(request):
+def home(request):
+    return render(request, "home.html")
+
+
+def map_page(request):
     regions = Station.objects.values_list('region', flat=True).distinct().order_by('region')
     cities = Station.objects.values_list('city', flat=True).distinct().order_by('city')
     fuel_types = FuelType.objects.all().order_by('name')
@@ -30,6 +34,16 @@ def api_stations(request):
 
     data = []
     for s in stations:
+        resolved_image_url = ""
+        if s.image:
+            try:
+                if s.image.storage.exists(s.image.name):
+                    resolved_image_url = s.image.url
+            except Exception:
+                resolved_image_url = ""
+        if not resolved_image_url and s.image_url:
+            resolved_image_url = s.image_url
+
         data.append({
             'id': s.id,
             'name': s.name,
@@ -43,7 +57,11 @@ def api_stations(request):
             'fuel_types': [f.name for f in s.fuels.all()],
             'description': s.description or '',
             'open_time': s.open_time or '',
-            'image_url': s.image.url if s.image else ''
+            'image_url': resolved_image_url,
+            'has_wifi': s.has_wifi,
+            'has_coffee': s.has_coffee,
+            'has_fast_food': s.has_fast_food,
+            'has_shop': s.has_shop,
         })
         
     return JsonResponse({'stations': data})

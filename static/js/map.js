@@ -55,12 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const closestName = document.getElementById('closestName');
     const closestDesc = document.getElementById('closestDesc');
     const closestTime = document.getElementById('closestTime');
+    const closestAmenities = document.getElementById('closestAmenities');
     const closestImgContainer = document.getElementById('overlayImgContainer');
     const closestPrices = document.querySelector('.overlay-prices');
     const closeOverlayBtn = document.getElementById('closeOverlayBtn');
     const openOverlayBtn = document.getElementById('openOverlayBtn');
 
     const pills = document.querySelectorAll('.pill');
+    const overlayFallbackImage = "url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"%239ca3af\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"%3e%3cpath d=\"M3 2v6h18V2H3zm13 14h-8v6h8v-6zm-7-2v2h6v-2h-6z\"%3e%3c/path%3e%3c/svg%3e')";
 
     const focusTashkent = () => {
         map.invalidateSize();
@@ -68,6 +70,23 @@ document.addEventListener('DOMContentLoaded', () => {
             padding: [0, 0],
             animate: false
         });
+    };
+
+    const setOverlayImage = imageUrl => {
+        if (!imageUrl) {
+            closestImgContainer.style.backgroundImage = overlayFallbackImage;
+            return;
+        }
+
+        const probe = new Image();
+        probe.onload = () => {
+            closestImgContainer.style.backgroundImage = `url('${imageUrl}')`;
+        };
+        probe.onerror = () => {
+            closestImgContainer.style.backgroundImage = overlayFallbackImage;
+        };
+        probe.referrerPolicy = 'no-referrer';
+        probe.src = imageUrl;
     };
 
     const setMobileView = view => {
@@ -173,40 +192,39 @@ document.addEventListener('DOMContentLoaded', () => {
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
-                ${station.open_time}
+                Ish vaqti: ${station.open_time}
             `;
             closestTime.style.display = 'flex';
         } else {
-            closestTime.style.display = 'none';
+            closestTime.innerHTML = `
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Ish vaqti: ma'lumot yo'q
+            `;
+            closestTime.style.display = 'flex';
         }
 
-        if (station.image_url) {
-            closestImgContainer.style.backgroundImage = `url('${station.image_url}')`;
+        setOverlayImage(station.image_url);
+
+        const amenities = [
+            { label: 'Wi-Fi', enabled: station.has_wifi },
+            { label: 'Qahva', enabled: station.has_coffee },
+            { label: 'Tez ovqatlanish', enabled: station.has_fast_food },
+            { label: "Do'kon", enabled: station.has_shop }
+        ];
+        closestAmenities.innerHTML = amenities
+            .map(a => `<span class="amenity-pill ${a.enabled ? 'on' : 'off'}">${a.label}: ${a.enabled ? 'Bor' : "Yo'q"}</span>`)
+            .join('');
+
+        if (station.fuel_types.length > 0) {
+            closestPrices.innerHTML = station.fuel_types
+                .map(fuelType => `<div class="price-item"><span class="price-label">Yoqilg'i</span><span class="price-val">${fuelType}</span></div>`)
+                .join('');
         } else {
-            closestImgContainer.style.backgroundImage = "url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"%239ca3af\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"%3e%3cpath d=\"M3 2v6h18V2H3zm13 14h-8v6h8v-6zm-7-2v2h6v-2h-6z\"%3e%3c/path%3e%3c/svg%3e')";
+            closestPrices.innerHTML = `<div class="price-item"><span class="price-label">Yoqilg'i</span><span class="price-val">Ma'lumot yo'q</span></div>`;
         }
-
-        let pricesHtml = '';
-        const fuelPrices = {
-            'PETROL AI-80': '8,500 UZS',
-            'PETROL AI-92': '9,800 UZS',
-            'PETROL AI-95': '10,500 UZS',
-            'PETROL AI-98': '11,200 UZS',
-            DIESEL: '9,200 UZS',
-            CNG: '2,800 UZS',
-            LPG: '3,500 UZS'
-        };
-
-        station.fuel_types.slice(0, 3).forEach(fuelType => {
-            const price = fuelPrices[fuelType] || 'Available';
-            pricesHtml += `<div class="price-item"><span class="price-label">${fuelType}</span><span class="price-val">${price}</span></div>`;
-        });
-
-        if (!pricesHtml && station.fuel_types.length > 0) {
-            pricesHtml += `<div class="price-item"><span class="price-label">${station.fuel_types[0]}</span><span class="price-val">Available</span></div>`;
-        }
-
-        closestPrices.innerHTML = pricesHtml;
     };
 
     const toggleFavorite = (stationId, btn) => {

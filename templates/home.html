@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UzGasFind | Bosh Sahifa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}?v=20260411a">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">UzGasFind</div>
+        <nav class="actions">
+            <a href="/map/" class="btn btn-primary">Xaritani Ochish</a>
+            <a href="/admin/" class="btn btn-ghost">Admin</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <p class="kicker">Bosh Sahifa</p>
+                <h1>Toshkent bo'ylab eng qulay yoqilg'i stansiyalarini tez toping</h1>
+                <p class="lead">
+                    Xarita orqali zapravkani tanlang va bir bosishda kerakli ma'lumotni oling:
+                    ish vaqti, yoqilg'i turlari, Wi-Fi, qahva, tez ovqatlanish va do'kon borligi.
+                </p>
+                <div class="hero-actions">
+                    <a href="/map/" class="btn btn-primary">Zapravkalarni Ko'rish</a>
+                    <a href="/admin/" class="btn btn-ghost">Ma'lumot Qo'shish</a>
+                </div>
+            </div>
+            <div class="hero-card">
+                <h2>Stansiya ustiga bossangiz</h2>
+                <ul>
+                    <li>Ish vaqti</li>
+                    <li>Yoqilg'i turlari</li>
+                    <li>Wi-Fi</li>
+                    <li>Qahva</li>
+                    <li>Tez ovqatlanish</li>
+                    <li>Do'kon mavjudligi</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div>UzGasFind © 2026</div>
+        <div class="footer-links">
+            <a href="/map/">Xarita</a>
+            <a href="/admin/">Admin</a>
+        </div>
+    </footer>
+</body>
+</html>

@@ -11,7 +11,7 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=20260309f">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=20260411a">
 </head>
 
 <body>
@@ -27,7 +27,7 @@
                         <path d="M17 8h2l2 2v7a2 2 0 0 1-2 2h-2"></path>
                     </svg>
                 </span>
-                <h1>UzGasFind</h1>
+                <h1><a href="/" style="color: inherit; text-decoration: none;">UzGasFind</a></h1>
             </div>
 
             <div class="search-filters">
@@ -61,6 +61,7 @@
             </div>
 
             <div class="top-actions">
+                <a href="/" class="btn-primary" style="background:#111827;">Bosh sahifa</a>
                 <button id="locateMeBtn" class="btn-primary">
                     <span class="icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24">
@@ -116,6 +117,7 @@
                             <h3 id="closestName">Station Name</h3>
                             <div id="closestDesc" class="overlay-description"></div>
                             <div id="closestTime" class="overlay-time"></div>
+                            <div id="closestAmenities" class="overlay-amenities"></div>
                             <div class="overlay-prices"></div>
                         </div>
                     </div>
@@ -153,7 +155,7 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <!-- Custom JS -->
-    <script src="{% static 'js/map.js' %}?v=20260309f"></script>
+    <script src="{% static 'js/map.js' %}?v=20260411a"></script>
 </body>
 
 </html>
