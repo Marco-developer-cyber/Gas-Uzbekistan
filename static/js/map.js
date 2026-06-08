@@ -407,9 +407,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 const nearest = sorted[0];
                 showClosestCard(nearest);
+                openGoogleMapsRoute(nearest.lat, nearest.lng, lat, lng);
+            } else {
+                alert('No gas stations found.');
             }
         } catch (err) {
-            alert('Could not access your location.');
+            alert('Could not access your location. Please enable location permissions in your browser settings.');
         }
     });
 
