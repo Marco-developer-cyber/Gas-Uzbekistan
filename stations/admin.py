@@ -11,9 +11,9 @@ class FuelTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Station)
 class StationAdmin(admin.ModelAdmin):
-    list_display = ("name", "region", "city", "rating", "is_open_now")
+    list_display = ("name", "region", "city", "phone", "rating", "is_open_now")
     list_filter = ("region", "city", "is_open_now", "has_wifi", "has_coffee", "has_fast_food", "has_shop", "fuels")
-    search_fields = ("name", "address", "region", "city")
+    search_fields = ("name", "address", "region", "city", "phone")
     filter_horizontal = ("fuels",)
 
     fieldsets = (
@@ -30,6 +30,7 @@ class StationAdmin(admin.ModelAdmin):
                     "latitude",
                     "description",
                     "open_time",
+                    "phone",
                     "is_open_now",
                     "fuels",
                 )

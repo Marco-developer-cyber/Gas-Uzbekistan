@@ -57,6 +57,7 @@ def api_stations(request):
             'fuel_types': [f.name for f in s.fuels.all()],
             'description': s.description or '',
             'open_time': s.open_time or '',
+            'phone': s.phone or '',
             'image_url': resolved_image_url,
             'has_wifi': s.has_wifi,
             'has_coffee': s.has_coffee,

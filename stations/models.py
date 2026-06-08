@@ -19,6 +19,7 @@ class Station(models.Model):
     open_time = models.CharField(max_length=100, blank=True, null=True, help_text="e.g. 08:00 - 22:00 or 24/7")
     image = models.ImageField(upload_to='stations/', blank=True, null=True)
     image_url = models.URLField(blank=True, null=True, help_text="Optional direct internet URL for station image")
+    phone = models.CharField(max_length=50, blank=True, null=True, help_text="e.g. +998901234567")
 
     has_wifi = models.BooleanField(default=False)
     has_coffee = models.BooleanField(default=False)

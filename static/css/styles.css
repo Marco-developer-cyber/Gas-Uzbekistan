@@ -841,3 +841,35 @@ body {
         margin-left: auto;
     }
 }
+
+/* Phone styles */
+.card-phone, .overlay-phone {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.card-phone svg, .overlay-phone svg {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.phone-link {
+    color: var(--primary-green);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.phone-link:hover {
+    color: var(--primary-green-hover);
+    text-decoration: underline;
+}
+
+.overlay-phone {
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+}
