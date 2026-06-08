@@ -348,13 +348,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lng = parseFloat(e.currentTarget.dataset.lng);
                 setMobileView('map');
 
+                let newWindow = null;
+                try {
+                    newWindow = window.open('about:blank', '_blank');
+                } catch (err) {
+                    console.warn("Popup blocked:", err);
+                }
+
                 try {
                     const { lat: startLat, lng: startLng } = await getUserLocation();
                     map.flyTo([lat, lng], 15);
                     showClosestCard(station);
-                    openGoogleMapsRoute(lat, lng, startLat, startLng);
+                    
+                    const params = new URLSearchParams({
+                        api: '1',
+                        destination: `${lat},${lng}`,
+                        origin: `${startLat},${startLng}`,
+                        travelmode: 'driving'
+                    });
+                    const routeUrl = `https://www.google.com/maps/dir/?${params.toString()}`;
+                    
+                    if (newWindow) {
+                        newWindow.location.href = routeUrl;
+                    } else {
+                        window.open(routeUrl, '_blank');
+                    }
                 } catch (err) {
-                    openGoogleMapsRoute(lat, lng);
+                    const params = new URLSearchParams({
+                        api: '1',
+                        destination: `${lat},${lng}`,
+                        travelmode: 'driving'
+                    });
+                    const routeUrl = `https://www.google.com/maps/dir/?${params.toString()}`;
+                    
+                    if (newWindow) {
+                        newWindow.location.href = routeUrl;
+                    } else {
+                        window.open(routeUrl, '_blank');
+                    }
                 }
             });
 
@@ -395,6 +426,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     locateMeBtn.addEventListener('click', async () => {
         setMobileView('map');
+        
+        let newWindow = null;
+        try {
+            newWindow = window.open('about:blank', '_blank');
+        } catch (err) {
+            console.warn("Popup blocked:", err);
+        }
+
         try {
             const { lat, lng } = await getUserLocation();
             map.flyTo([lat, lng], 14);
@@ -407,11 +446,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 const nearest = sorted[0];
                 showClosestCard(nearest);
-                openGoogleMapsRoute(nearest.lat, nearest.lng, lat, lng);
+                
+                const params = new URLSearchParams({
+                    api: '1',
+                    destination: `${nearest.lat},${nearest.lng}`,
+                    origin: `${lat},${lng}`,
+                    travelmode: 'driving'
+                });
+                const routeUrl = `https://www.google.com/maps/dir/?${params.toString()}`;
+                
+                if (newWindow) {
+                    newWindow.location.href = routeUrl;
+                } else {
+                    window.open(routeUrl, '_blank');
+                }
             } else {
+                if (newWindow) newWindow.close();
                 alert('No gas stations found.');
             }
         } catch (err) {
+            if (newWindow) newWindow.close();
             alert('Could not access your location. Please enable location permissions in your browser settings.');
         }
     });
